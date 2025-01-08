@@ -490,6 +490,24 @@ class GameInstance{
             //    Ny = -Ny;
            // }
 
+// Only do reflection if dot < 0
+            if (dot < 0) {
+                let rx = vx - 2 * dot * Nx;
+                let ry = vy - 2 * dot * Ny;
+
+                // e.g., apply spring factor, etc.
+                rx *= this.ball.spring;
+                ry *= this.ball.spring;
+
+                this.ball.velocityX = rx;
+                this.ball.velocityY = ry;
+
+                // Then nudge it outward
+                let smallOffset = 5;
+                this.ball.x_pos += Nx * smallOffset;
+                this.ball.y_pos += Ny * smallOffset;
+            }
+
             // 4) Reflect velocity: v' = v - 2*(v·N)*N
             // This is the standard reflection about a line/plane with normal N.
             let rx = vx - 2 * dot * Nx;
@@ -530,6 +548,23 @@ class GameInstance{
             // 3) Compute dot product (v dot N)
             // Make sure (Nx, Ny) is already normalized (cos/sin is unit length).
             let dot = vx * Nx + vy * Ny;  
+
+            if (dot < 0) {
+                let rx = vx - 2 * dot * Nx;
+                let ry = vy - 2 * dot * Ny;
+
+                // e.g., apply spring factor, etc.
+                rx *= this.ball.spring;
+                ry *= this.ball.spring;
+
+                this.ball.velocityX = rx;
+                this.ball.velocityY = ry;
+
+                // Then nudge it outward
+                let smallOffset = 5;
+                this.ball.x_pos += Nx * smallOffset;
+                this.ball.y_pos += Ny * smallOffset;
+            }
 
             // if dot > 0, flip the normal
             //if (dot > 0) {
@@ -582,6 +617,22 @@ class GameInstance{
                 //    Nx = -Nx;
                 //    Ny = -Ny;
                 //}
+                if (dot < 0) {
+                    let rx = vx - 2 * dot * Nx;
+                    let ry = vy - 2 * dot * Ny;
+    
+                    // e.g., apply spring factor, etc.
+                    rx *= this.ball.spring;
+                    ry *= this.ball.spring;
+    
+                    this.ball.velocityX = rx;
+                    this.ball.velocityY = ry;
+    
+                    // Then nudge it outward
+                    let smallOffset = 5;
+                    this.ball.x_pos += Nx * smallOffset;
+                    this.ball.y_pos += Ny * smallOffset;
+                }
 
                 // 4) Reflect velocity: v' = v - 2*(v·N)*N
                 // This is the standard reflection about a line/plane with normal N.
@@ -639,7 +690,6 @@ class GameInstance{
             let gameover_string = "Game Over\r\nYour Score: " + this.scoreboard.score
             ctx.fillText(gameover_string, 50, 300)
             this.over = true
-
         }
 
         // draw the objects
@@ -660,6 +710,7 @@ class GameInstance{
         this.detect_collisions();
 
         //
+       
         this.ball.update();
         this.left_paddle.update();
         this.right_paddle.update();
@@ -703,7 +754,7 @@ function keyUpHandler(e){
 }
 
 // constructor(gravity, fps, ball_x_pos, ball_y_pos, ball_color, ball_spring, ball_damping, ball_radius){
-game = new GameInstance(0.2, 60, 200, 350 ,"purple", 1.05 , 0.01, 3) // new game with gravity 3 and 60 fps
+game = new GameInstance(0.05, 60, 225, 350 ,"purple", 1.05 , 0.01, 15) // new game with gravity 3 and 60 fps
 
 
 game.addBullseye(240, 50, 15, 30)
@@ -724,8 +775,8 @@ game.addBullseye(428, 78, 9, 300)
 game.addBullseye(495, 55, 14, 300)
 
 //addBarrier(x_pos, y_pos, width, height, angle){
-game.addBarrier(125,420, 300, 30, 45)
-game.addBarrier(475, 420, 300, 30, 135)
+//game.addBarrier(125,420, 300, 30, 45)
+//game.addBarrier(475, 420, 300, 30, 135)
 
 
 
