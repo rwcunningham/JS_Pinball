@@ -8,7 +8,7 @@ class Scoreboard {
         this.score = 0
         this.nickname = "test user 1"
         this.userID = 0
-        this.balls = 50
+        this.balls = 5
     }
 
     display(){
@@ -40,8 +40,8 @@ class Ball{
         this.start_spring = spring; // fraction of velocity gained during a paddle wack
         this.start_damping = damping; // fraction of velocity lost during a bounce
         this.start_radius = radius;
-        this.start_velocityX = 0; //pixels per frame
-        this.start_velocityY = 0; //pixels per frame
+        this.start_velocityX = this.velocityX; //pixels per frame
+        this.start_velocityY = this.velocityY; //pixels per frame
         this.last_gravity = 0.1;
     }
 
@@ -85,21 +85,21 @@ class Ball{
 // Left Paddle
 class leftPaddle{
     constructor(){
-        this.width = 150
+        this.width = 300
         this.height = 20
         this.motion_direction = 1 // 1 for clockwise, -1 for clockwise
-        this.acceleration = 10  // increase in pixels moved per frame per frame
-        this.x_pos = 100
-        this.y_pos = canvas.height + 5 // have it start off screen
+        this.acceleration = 5  // increase in pixels moved per frame per frame
+        this.x_pos = 225
+        this.y_pos = canvas.height - (this.height * 3) 
         this.color = "yellow"
-        this.velocity = 1
+        // this.velocity = 0
         this.angle = 0 // rotation angle in degrees
         this.rad = this.angle * Math.PI / 180; // rotation angle in rads
-        this.angular_velocity = 10 * this.motion_direction;
-        this.max_angle = 90;
+        this.angular_velocity = 20 * this.motion_direction;
+        this.max_angle = 70;
         this.min_angle = 0;
-        this.max_height = canvas.height + 5 // higher "height" is lower on the screen
-        this.min_height = canvas.height - (this.height * 2)
+        this.max_height = canvas.height - (this.height * 2) // higher "height" is lower on the screen
+        this.min_height = canvas.height - (this.height * 3)
     }
 
     setWidth(width){
@@ -158,8 +158,8 @@ class leftPaddle{
         //Convert degrees to radian 
         //var this.rad = deg * Math.PI / 180;
     
-        //Set the origin to the center of the image
-        ctx.translate(this.x_pos + this.width / 2, this.y_pos + this.height / 2);
+        //Set the origin to the right side middle of the image
+        ctx.translate(this.x_pos + this.width, this.y_pos + this.height / 2);
     
         //Rotate the canvas around the origin
         ctx.rotate(this.rad);
@@ -178,7 +178,7 @@ class leftPaddle{
         // if left is pressed, make it rise and turn
         if (left_pressed && this.y_pos >= this.min_height && this.angle <= this.max_angle){ // if left is pressed and it's less than two lengths from the bottom
             this.velocity = this.velocity + this.acceleration
-            this.y_pos = this.y_pos - this.velocity
+            // this.y_pos = this.y_pos - this.velocity
             this.angle += this.angular_velocity
             this.rad = this.angle * Math.PI / 180;
         }
@@ -187,7 +187,7 @@ class leftPaddle{
         else if (!left_pressed && this.y_pos <= this.max_height){
             // set velocity to 0 in the keyup event listener
             this.velocity = this.velocity + this.gravity
-            this.y_pos = this.y_pos + this.velocity
+            // this.y_pos = this.y_pos + this.velocity
             // if the paddle isn't lying flat yet, let it rotate more
             if (this.angle >= this.min_angle){
                 this.angle -= this.angular_velocity
@@ -204,21 +204,21 @@ class leftPaddle{
 // 3. leftpressed becomes right pressed
 class rightPaddle{
     constructor(){
-        this.width = 150
+        this.width = 300
         this.height = 20
         this.motion_direction = -1 // 1 for clockwise, -1 for clockwise
-        this.acceleration = 10 // increase in pixels moved per frame per frame
-        this.x_pos = 400
-        this.y_pos = canvas.height + 5 // have it start off screen
+        this.acceleration = 5 // increase in pixels moved per frame per frame
+        this.x_pos = 75
+        this.y_pos = canvas.height - (this.height * 3) 
         this.color = "yellow"
-        this.velocity = 1
+        this.velocity = 0
         this.angle = 180 // rotation angle in degrees
         this.rad = this.angle * Math.PI / 180; // rotation angle in rads
-        this.angular_velocity = 10 * this.motion_direction;
+        this.angular_velocity = 20 * this.motion_direction;
         this.max_angle = 180;
-        this.min_angle = 90;
-        this.max_height = canvas.height + 5 // higher "height" is lower on the screen
-        this.min_height = canvas.height - (this.height * 2)
+        this.min_angle = 110;
+        this.max_height = canvas.height - (this.height * 2) // higher "height" is lower on the screen
+        this.min_height = canvas.height - (this.height * 3)
     }
 
     setWidth(width){
@@ -277,8 +277,8 @@ class rightPaddle{
         //Convert degrees to radian 
         //var this.rad = deg * Math.PI / 180;
     
-        //Set the origin to the center of the image
-        ctx.translate(this.x_pos + this.width / 2, this.y_pos + this.height / 2);
+        //Set the origin to the left side middle of the image
+        ctx.translate(this.x_pos, this.y_pos + this.height / 2);
     
         //Rotate the canvas around the origin
         ctx.rotate(this.rad);
@@ -299,7 +299,7 @@ class rightPaddle{
         // angle: for the right paddle, we want the paddle be over 90 degrees
         if (right_pressed && this.y_pos >= this.min_height && this.angle >= this.min_angle){ 
             this.velocity = this.velocity + this.acceleration
-            this.y_pos = this.y_pos - this.velocity
+            //this.y_pos = this.y_pos - this.velocity
             this.angle += this.angular_velocity // angular velocity is negative, so add it
             this.rad = this.angle * Math.PI / 180;
         }
@@ -307,7 +307,7 @@ class rightPaddle{
         else if (!right_pressed && this.y_pos <= this.max_height){
             // set velocity to 0 in the keyup event listener
             this.velocity = this.velocity + this.gravity
-            this.y_pos = this.y_pos + this.velocity
+            //this.y_pos = this.y_pos + this.velocity
             // if the paddle isn't lying flat yet, let it rotate more
             if (this.angle <= this.max_angle){
                 this.angle -= this.angular_velocity
@@ -359,12 +359,13 @@ class GameInstance{
         this.ball = new Ball(ball_x_pos,ball_y_pos,ball_color, ball_spring , ball_damping, ball_radius); // Ball constructor(x_pos, y_pos, color, spring, damping)
         this.left_paddle = new leftPaddle();
         this.right_paddle = new rightPaddle();
-        this.bullseyes = [new Bullseye(350, 400, 40, 100)];
+        this.bullseyes = [];
         this.left_paddle.setGravity(this.gravity);
         this.right_paddle.setGravity(this.gravity);
         this.ball.setGravity(this.gravity);  // set the ball's gravity
         this.balls_remaining = 5;
         this.scoreboard = new Scoreboard();
+        this.over = false;
     }
 
     detect_collisions(){
@@ -422,6 +423,12 @@ class GameInstance{
             // Make sure (Nx, Ny) is already normalized (cos/sin is unit length).
             let dot = vx * Nx + vy * Ny;  
 
+            // if dot > 0, flip the normal
+            //if (dot > 0) {
+            //    Nx = -Nx;
+            //    Ny = -Ny;
+           // }
+
             // 4) Reflect velocity: v' = v - 2*(v·N)*N
             // This is the standard reflection about a line/plane with normal N.
             let rx = vx - 2 * dot * Nx;
@@ -429,13 +436,22 @@ class GameInstance{
 
             // 5) Optionally apply damping or scale
             // Example: keep speed but reduce by some damping factor
-            let dampingFactor = (1 - this.ball.damping);  // or .9, or any factor you like
-            rx *= dampingFactor;
-            ry *= dampingFactor;
+            // let dampingFactor = (1 - this.ball.damping);  // or .9, or any factor you like
+            rx *= this.ball.spring;
+            ry *= this.ball.spring;
 
             // 6) Assign the new velocity back to the ball
             this.ball.velocityX = rx;
             this.ball.velocityY = ry;
+
+            // 7 small offset to improve performance
+
+            let smallOffset = 5;  // or whatever value feels right
+            this.ball.x_pos += Nx * smallOffset;
+            this.ball.y_pos += Ny * smallOffset;
+
+
+
         }
 
         // if the ball strikes the right paddle
@@ -454,6 +470,12 @@ class GameInstance{
             // Make sure (Nx, Ny) is already normalized (cos/sin is unit length).
             let dot = vx * Nx + vy * Ny;  
 
+            // if dot > 0, flip the normal
+            //if (dot > 0) {
+            //    Nx = -Nx;
+            //    Ny = -Ny;
+            //}
+
             // 4) Reflect velocity: v' = v - 2*(v·N)*N
             // This is the standard reflection about a line/plane with normal N.
             let rx = vx - 2 * dot * Nx;
@@ -461,13 +483,20 @@ class GameInstance{
 
             // 5) Optionally apply damping or scale
             // Example: keep speed but reduce by some damping factor
-            let dampingFactor = (1 - this.ball.damping);  // or .9, or any factor you like
-            rx *= dampingFactor;
-            ry *= dampingFactor;
+            //let dampingFactor = (1 - this.ball.damping);  // or .9, or any factor you like
+            rx *= this.ball.spring;
+            ry *= this.ball.spring;
 
             // 6) Assign the new velocity back to the ball
             this.ball.velocityX = rx;
             this.ball.velocityY = ry;
+
+            // 7.) small offset to improve performance
+            let smallOffset = 5;  // or whatever value feels right
+            this.ball.x_pos += Nx * smallOffset;
+            this.ball.y_pos += Ny * smallOffset;
+
+      
         }
 
         // if the ball hits the bullseye
@@ -496,6 +525,13 @@ class GameInstance{
         // clear the screen
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+        if(this.scoreboard.balls <= 0){
+            let gameover_string = "Game Over\r\nYour Score: " + this.scoreboard.score
+            ctx.fillText(gameover_string, 50, 300)
+            this.over = true
+
+        }
+
         // draw the objects
         this.ball.draw();
         this.left_paddle.draw();
@@ -517,7 +553,9 @@ class GameInstance{
         }
         //this.scoreboard.update();
         
+        if (!this.over){
         requestAnimationFrame(this.draw.bind(this));
+        }
     }
 }
 
@@ -549,11 +587,38 @@ function keyUpHandler(e){
     }
 }
 
-//constructor(gravity, fps, ball_x_pos, ball_y_pos, ball_color, ball_spring, ball_damping, ball_radius){
-game = new GameInstance(0.3, 60, 200 ,100,"blue", 1.3 , 0.01, 10) // new game with gravity 3 and 60 fps
-game.addBullseye(30, 450, 20, 200)
+// constructor(gravity, fps, ball_x_pos, ball_y_pos, ball_color, ball_spring, ball_damping, ball_radius){
+game = new GameInstance(0.3, 60, 466, 200 ,"blue", 1.05 , 0.01, 30) // new game with gravity 3 and 60 fps
+
+
+game.addBullseye(240, 50, 15, 30)
+game.addBullseye(250, 310, 5, 40)
+game.addBullseye(260, 160, 20, 50)
+
+
+
+game.addBullseye(315, 206, 13, 30)
+game.addBullseye(330, 107, 5, 40)
+game.addBullseye(345, 228, 4, 50)
+game.addBullseye(370, 60, 11, 60)
+
+
+game.addBullseye(398, 240, 16, 100)
+game.addBullseye(407, 200, 5, 300)
+game.addBullseye(428, 78, 9, 300)
+
+game.addBullseye(495, 55, 14, 300)
+
+
+
+
+
 game.draw();
 
+
+
+
+// Helper functions copied from the internet etc below:
 
 // copied from stack overflow 
 function drawImageRot(img,x,y,width,height,deg){
