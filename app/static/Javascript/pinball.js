@@ -82,14 +82,14 @@ class Ball{
 }
 
 
-// Left Paddle
-class leftPaddle{
+// Left Paddle // but I am switching it
+class rightPaddle{
     constructor(){
-        this.width = 300
+        this.width = 150
         this.height = 20
         this.motion_direction = 1 // 1 for clockwise, -1 for clockwise
         this.acceleration = 5  // increase in pixels moved per frame per frame
-        this.x_pos = 225
+        this.x_pos = 235
         this.y_pos = canvas.height - (this.height * 3) 
         this.color = "yellow"
         // this.velocity = 0
@@ -175,16 +175,16 @@ class leftPaddle{
     }
 
     update(){
-        // if left is pressed, make it rise and turn
-        if (left_pressed && this.y_pos >= this.min_height && this.angle <= this.max_angle){ // if left is pressed and it's less than two lengths from the bottom
+        // if right is pressed, make it rise and turn
+        if (right_pressed && this.y_pos >= this.min_height && this.angle <= this.max_angle){ // if right is pressed and it's less than two lengths from the bottom
             this.velocity = this.velocity + this.acceleration
             // this.y_pos = this.y_pos - this.velocity
             this.angle += this.angular_velocity
             this.rad = this.angle * Math.PI / 180;
         }
 
-        // if left is not pressed, and it's not fallen to its minimum height let it fall and turn
-        else if (!left_pressed && this.y_pos <= this.max_height){
+        // if right is not pressed, and it's not fallen to its minimum height let it fall and turn
+        else if (!right_pressed && this.y_pos <= this.max_height){
             // set velocity to 0 in the keyup event listener
             this.velocity = this.velocity + this.gravity
             // this.y_pos = this.y_pos + this.velocity
@@ -202,13 +202,13 @@ class leftPaddle{
 // 1. Move location of paddle to the right
 // 2. Reverse angle range? (current range is 0-90) (does direction of motion need to change?)
 // 3. leftpressed becomes right pressed
-class rightPaddle{
+class leftPaddle{
     constructor(){
-        this.width = 300
+        this.width = 150
         this.height = 20
         this.motion_direction = -1 // 1 for clockwise, -1 for clockwise
         this.acceleration = 5 // increase in pixels moved per frame per frame
-        this.x_pos = 75
+        this.x_pos = 215
         this.y_pos = canvas.height - (this.height * 3) 
         this.color = "yellow"
         this.velocity = 0
@@ -294,17 +294,17 @@ class rightPaddle{
     }
 
     update(){
-        // event: paddle rises when you press right
+        // event: paddle rises when you press left
         // height: and is below its max height
-        // angle: for the right paddle, we want the paddle be over 90 degrees
-        if (right_pressed && this.y_pos >= this.min_height && this.angle >= this.min_angle){ 
+        // angle: for the left paddle, we want the paddle be over 90 degrees
+        if (left_pressed && this.y_pos >= this.min_height && this.angle >= this.min_angle){ 
             this.velocity = this.velocity + this.acceleration
             //this.y_pos = this.y_pos - this.velocity
             this.angle += this.angular_velocity // angular velocity is negative, so add it
             this.rad = this.angle * Math.PI / 180;
         }
 
-        else if (!right_pressed && this.y_pos <= this.max_height){
+        else if (!left_pressed && this.y_pos <= this.max_height){
             // set velocity to 0 in the keyup event listener
             this.velocity = this.velocity + this.gravity
             //this.y_pos = this.y_pos + this.velocity
@@ -351,6 +351,63 @@ class Bullseye{
     }
 }
 
+//
+class Barrier{
+    constructor(x_pos, y_pos, width, height, angle){
+        this.x_pos= x_pos;
+        this.y_pos = y_pos;
+        this.width = width;
+        this.height = height;
+        this.angle = angle // rotation angle in degrees
+        this.rad = this.angle * Math.PI / 180; // rotation angle in rads
+    }
+
+    draw(){
+
+        ctx.save()
+
+        //Convert degrees to radian 
+        //var this.rad = deg * Math.PI / 180;
+    
+        //Set the origin to the left side middle of the image
+        ctx.translate(this.x_pos, this.y_pos + this.height / 2);
+    
+        //Rotate the canvas around the origin
+        ctx.rotate(this.rad);
+    
+        //draw the image    
+        ctx.beginPath();
+        ctx.fillStyle = this.color;
+        ctx.fillRect(-this.width/2, -this.height/2, this.width, this.height);
+        ctx.closePath();
+
+        // Restore canvas state as saved from above
+        ctx.restore();
+    }
+
+    getRotatedBarrierCorners() {
+        // Get center point
+        let cx = this.x_pos + this.width/2;
+        let cy = this.y_pos + this.height/2;
+        
+        // Get corners relative to center
+        let points = [
+            {x: -this.width/2, y: -this.height/2},
+            {x: this.width/2, y: -this.height/2},
+            {x: this.width/2, y: this.height/2},
+            {x: -this.width/2, y: this.height/2}
+        ];
+        
+        // Rotate and translate points
+        return points.map(p => {
+            let x = p.x * Math.cos(this.rad) - p.y * Math.sin(this.rad) + cx;
+            let y = p.x * Math.sin(this.rad) + p.y * Math.cos(this.rad) + cy;
+            return {x, y};
+        });
+    }
+
+}
+
 class GameInstance{
     constructor(gravity, fps, ball_x_pos, ball_y_pos, ball_color, ball_spring, ball_damping, ball_radius){
         this.gravity = gravity;
@@ -360,12 +417,16 @@ class GameInstance{
         this.left_paddle = new leftPaddle();
         this.right_paddle = new rightPaddle();
         this.bullseyes = [];
+        this.barriers = [];
         this.left_paddle.setGravity(this.gravity);
         this.right_paddle.setGravity(this.gravity);
         this.ball.setGravity(this.gravity);  // set the ball's gravity
         this.balls_remaining = 5;
         this.scoreboard = new Scoreboard();
         this.over = false;
+    }
+    addBarrier(x_pos, y_pos, width, height, angle){
+        this.barriers.push(new Barrier(x_pos, y_pos, width, height, angle));
     }
 
     detect_collisions(){
@@ -384,14 +445,14 @@ class GameInstance{
         // if the bottom of the ball hits the bottom of the screen
         if (this.ball.y_pos + this.ball.radius >= canvas.height){
             
-            this.ball.y_pos = canvas.height - this.ball.radius;
+            //this.ball.y_pos = canvas.height - this.ball.radius;
             // this.ball.velocityY = -this.ball.velocityY * (1 - this.ball.damping)
 
-            this.balls_remaining -= 1 // lose a ball_remaining
+           // this.balls_remaining -= 1 // lose a ball_remaining
 
             // move the ball back to starting position
-            this.ball.y_pos = this.ball.radius * 2
-            this.ball.x_pos = canvas. width / 2
+           // this.ball.y_pos = this.ball.radius * 2
+           // this.ball.x_pos = canvas. width / 2
 
             this.scoreboard.balls -= 1;
             this.ball.reset();
@@ -499,6 +560,54 @@ class GameInstance{
       
         }
 
+        // if the ball hits the barrier
+        for (let barrier of this.barriers){
+            if (shapesIntersect(barrier.getRotatedBarrierCorners(), {x: this.ball.x_pos, y: this.ball.y_pos}, this.ball.radius)){
+                console.log("collision detected with barrier and ball")
+                // 1) Compute the paddle’s surface normal
+                let normalAngle = barrier.rad - Math.PI/2;
+                let Nx = Math.cos(normalAngle);
+                let Ny = Math.sin(normalAngle);
+
+                // 2) Get ball's current velocity
+                let vx = this.ball.velocityX;
+                let vy = this.ball.velocityY;
+
+                // 3) Compute dot product (v dot N)
+                // Make sure (Nx, Ny) is already normalized (cos/sin is unit length).
+                let dot = vx * Nx + vy * Ny;  
+
+                // if dot > 0, flip the normal
+                //if (dot > 0) {
+                //    Nx = -Nx;
+                //    Ny = -Ny;
+                //}
+
+                // 4) Reflect velocity: v' = v - 2*(v·N)*N
+                // This is the standard reflection about a line/plane with normal N.
+                let rx = vx - 2 * dot * Nx;
+                let ry = vy - 2 * dot * Ny;
+
+                // 5) Optionally apply damping or scale
+                // Example: keep speed but reduce by some damping factor
+                //let dampingFactor = (1 - this.ball.damping);  // or .9, or any factor you like
+                rx *= this.ball.spring;
+                ry *= this.ball.spring;
+
+                // 6) Assign the new velocity back to the ball
+                this.ball.velocityX = rx;
+                this.ball.velocityY = ry;
+
+                // 7.) small offset to improve performance
+                let smallOffset = 6;  // or whatever value feels right
+                this.ball.x_pos += Nx * smallOffset;
+                this.ball.y_pos += Ny * smallOffset;
+
+        
+            }
+        }
+        
+
         // if the ball hits the bullseye
         for (let bullseye of this.bullseyes){
             let ball_center = {x: this.ball.x_pos, y: this.ball.y_pos}
@@ -515,6 +624,7 @@ class GameInstance{
             }
         }
     }
+
 
     addBullseye(x_pos, y_pos, radius, point_value){
         this.bullseyes.push(new Bullseye(x_pos, y_pos, radius, point_value));
@@ -539,7 +649,12 @@ class GameInstance{
         for (let bullseye of this.bullseyes){
             bullseye.draw();
         }
+        for (let barrier of this.barriers){
+            barrier.draw();
+        }
+
         this.scoreboard.display();
+        
 
         // detect collisions
         this.detect_collisions();
@@ -588,11 +703,10 @@ function keyUpHandler(e){
 }
 
 // constructor(gravity, fps, ball_x_pos, ball_y_pos, ball_color, ball_spring, ball_damping, ball_radius){
-game = new GameInstance(0.3, 60, 466, 200 ,"blue", 1.05 , 0.01, 30) // new game with gravity 3 and 60 fps
+game = new GameInstance(0.2, 60, 200, 350 ,"purple", 1.05 , 0.01, 3) // new game with gravity 3 and 60 fps
 
 
 game.addBullseye(240, 50, 15, 30)
-game.addBullseye(250, 310, 5, 40)
 game.addBullseye(260, 160, 20, 50)
 
 
@@ -608,6 +722,12 @@ game.addBullseye(407, 200, 5, 300)
 game.addBullseye(428, 78, 9, 300)
 
 game.addBullseye(495, 55, 14, 300)
+
+//addBarrier(x_pos, y_pos, width, height, angle){
+game.addBarrier(125,420, 300, 30, 45)
+game.addBarrier(475, 420, 300, 30, 135)
+
+
 
 
 
